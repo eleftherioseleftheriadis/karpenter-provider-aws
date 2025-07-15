@@ -1,0 +1,26 @@
+apiVersion: karpenter.k8s.aws/v1
+kind: EC2NodeClass
+metadata:
+  name: clickhouse-ec2nodeclass
+spec:
+  amiSelectorTerms:
+    - alias: bottlerocket@latest
+  blockDeviceMappings:
+    - deviceName: /dev/xvdb
+      ebs:
+        deleteOnTermination: true
+        encrypted: true
+        volumeSize: 100Gi
+        volumeType: gp3
+  kubelet:
+    imageGCHighThresholdPercent: 85
+    imageGCLowThresholdPercent: 65
+  role: AmazonEKSNodeRole-dev
+  securityGroupSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: eks_cluster_dev
+  subnetSelectorTerms:
+    - tags:
+        karpenter.sh/discovery: eks_cluster_dev
+  tags:
+    KarpenterNodePoolName: clickhouse-ec2nodeclass

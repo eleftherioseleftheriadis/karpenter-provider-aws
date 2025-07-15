@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: karpenter
+  namespace: kube-system
+spec:
+  project: infra
+  source:
+    repoURL: https://github.com/IngotTech/infra_k8s_config
+    targetRevision: develop
+    path: karpenter/dev
+    helm:
+      valueFiles:
+        - dev/values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kube-system
+  syncPolicy:
+    automated: null
+    syncOptions:
+      - CreateNamespace=true

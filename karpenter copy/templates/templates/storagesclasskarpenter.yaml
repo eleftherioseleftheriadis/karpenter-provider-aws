@@ -1,0 +1,19 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: multi-az-ebs-clickhouse
+provisioner: ebs.csi.aws.com
+volumeBindingMode: WaitForFirstConsumer
+allowVolumeExpansion: true
+parameters:
+  type: gp3
+  csi.storage.k8s.io/fstype: xfs
+  tags: |
+    Name=multi-az-ebs-clickhouse,Environment=Production,Team=Analytics
+  iops: "6000"
+  throughput: "500"
+  encrypted: "true"
+allowedTopologies:
+  - matchLabelExpressions:
+      - key: topology.kubernetes.io/zone
+        values: ["eu-west-1a", "eu-west-1b", "eu-west-1c"]

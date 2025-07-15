@@ -1,0 +1,5 @@
+apiVersion: v2
+name: karpenter
+version: 1.3.3
+description: Shared chart for Karpenter installation
+type: application

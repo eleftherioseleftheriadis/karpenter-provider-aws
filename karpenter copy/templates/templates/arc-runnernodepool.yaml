@@ -1,0 +1,51 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: arc-runner-nodepool
+spec:
+  disruption:
+    consolidationPolicy: WhenEmpty
+    consolidateAfter: 5m         # Optional: Wait 5 minutes after node is empty before consolidation
+  template:
+    metadata:
+      labels:
+        actions.github.com/scale-set-name: arc-runner-set
+    spec:
+      expireAfter: 24h
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      taints:
+        - key: "arc-runner-nodepool"
+          value: "true"
+          effect: "NoSchedule"
+      requirements:
+        - key: kubernetes.io/arch
+          operator: In
+          values:
+            - amd64
+            - arm64
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values:
+            - c
+            - m
+            - r
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values:
+            - spot
+            - on-demand
+        - key: karpenter.k8s.aws/instance-cpu
+          operator: Gt
+          values:
+            - '2'
+        - key: karpenter.k8s.aws/instance-memory
+          operator: Gt
+          values:
+            - '8192'
+        - key: karpenter.k8s.aws/instance-memory
+          operator: Lt
+          values:
+            - '32768'

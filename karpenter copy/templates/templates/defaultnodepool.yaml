@@ -1,0 +1,60 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  labels:
+    k8slens-edit-resource-version: v1
+  name: default
+spec:
+  disruption:
+    budgets:
+    - duration: 1h
+      nodes: 20%
+      reasons:
+      - Empty
+      - Underutilized
+      - Drifted
+      schedule: 0 23 * * *
+    consolidateAfter: 30s
+    consolidationPolicy: WhenEmptyOrUnderutilized
+  template:
+    metadata:
+      labels:
+        intent: apps
+    spec:
+      expireAfter: 720h
+      nodeClassRef:
+        group: karpenter.k8s.aws
+        kind: EC2NodeClass
+        name: default
+      requirements:
+      - key: kubernetes.io/arch
+        operator: In
+        values:
+        - amd64
+        - arm64
+      - key: karpenter.k8s.aws/instance-category
+        operator: In
+        values:
+        - t
+        - m
+      - key: karpenter.sh/capacity-type
+        operator: In
+        values:
+        - spot
+        - on-demand
+      - key: karpenter.k8s.aws/instance-cpu
+        operator: In
+        values:
+        - "2"
+        - "4"
+      - key: karpenter.k8s.aws/instance-memory
+        operator: In
+        values:
+        - "4096"
+        - "8192"
+      - key: karpenter.k8s.aws/instance-family
+        operator: NotIn
+        values:
+        - m6gd
+        - m5dn
+        - m5n
